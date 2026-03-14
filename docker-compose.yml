@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  # Redis for Celery task queue
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # FastAPI backend
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./storage:/app/storage
+    environment:
+      - DATABASE_URL=sqlite:///./edgeforge.db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Celery worker for optimization jobs
+  worker:
+    build: .
+    volumes:
+      - .:/app
+      - ./storage:/app/storage
+    environment:
+      - DATABASE_URL=sqlite:///./edgeforge.db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    command: celery -A app.tasks.worker worker --loglevel=info --concurrency=1
+
+volumes:
+  redis_data:
