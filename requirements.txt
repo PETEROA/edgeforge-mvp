@@ -21,7 +21,7 @@ celery[redis]==5.4.0
 redis==5.1.0
 
 # ML / Optimization
-torch>=2.1.0
+# torch is installed via build command (CPU-only version)
 onnx==1.16.0
 onnxruntime==1.19.0
 optimum==1.22.0
