@@ -37,3 +37,7 @@ externalPort = 8000
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--workers=2", "-k", "uvicorn.workers.UvicornWorker", "app.main:app"]
